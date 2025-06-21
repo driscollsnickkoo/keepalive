@@ -9,8 +9,8 @@ def lambda_handler(event, context):
 
         response = sns_client.publish(
             TopicArn='arn:aws:sns:us-east-1:825765396866:QMPTableUpdateAlert',
-            Message=f'NK Test sns from Lambda Message with key1 : {key1}',
-            Subject='NK Test SNS from Lambda subject'
+            Message=f'Test sns from Lambda Message with key1 : {key1}',
+            Subject='Test SNS from Lambda subject'
         )
 
         return {
@@ -24,5 +24,5 @@ def lambda_handler(event, context):
     except Exception as e:
         return {
             'statusCode': 500,
-            'body': json.dumps(f'❌ NK lambda NK_helloworld_SNS Failed: {str(e)}')
+            'body': json.dumps(f'new structure lambda NK_helloworld_SNS Failed: {str(e)}')
         }
