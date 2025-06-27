@@ -46,11 +46,11 @@ def lambda_handler(event, context):
             #     Message=f"Found {len(rows)} unprocessed records:\n\n{message}"
             # )
 
-            sns_response = sns_client.publish(
-                TopicArn='arn:aws:sns:us-east-1:825765396866:QMPTableUpdateAlert',
-                Message=f'Test sns from Lambda Message with key1 : {message}',
-                Subject='Test SNS from Lambda subject'
-            )
+            # sns_response = sns_client.publish(
+            #     TopicArn='arn:aws:sns:us-east-1:825765396866:QMPTableUpdateAlert',
+            #     Message=f'Test sns from Lambda Message with key1 : {message}',
+            #     Subject='Test SNS from Lambda subject'
+            # )
 
             
             return {
