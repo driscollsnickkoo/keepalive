@@ -43,7 +43,7 @@ def lambda_handler(event, context):
             sns_response = sns_client.publish(
                 TopicArn=sns_topic_arn,
                 Subject="Unprocessed QMP Records Alert",
-                Message=f"Found {len(rows)} unprocessed records:\n\n{message}"
+                Message=f"Found NK {len(rows)} unprocessed records:\n\n{message}"
             )
 
             # sns_response = sns_client.publish(
