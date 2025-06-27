@@ -45,6 +45,9 @@ def lambda_handler(event, context):
             #     Subject="Unprocessed QMP Records Alert",
             #     Message=f"Found {len(rows)} unprocessed records:\n\n{message}"
             # )
+            print(f"sns_topic_arn : {sns_topic_arn}")
+            print(f"Found {len(rows)} unprocessed records:\n\n{message}")
+            
 
             
             return {
