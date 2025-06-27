@@ -1,12 +1,19 @@
 import os
 import pymysql
+import boto3
+import json
 
-# Read environment variables
+# Read environment variables for mysql
 DB_HOST = os.environ['DB_HOST']
 DB_PORT = int(os.environ['DB_PORT'])
 DB_USER = os.environ['DB_USER']
 DB_PASS = os.environ['DB_PASS']
 DB_NAME = os.environ['DB_NAME']
+
+
+# SNS config
+sns_topic_arn = 'arn:aws:sns:us-east-1:825765396866:QMPTableUpdateAlert'
+sns_client = boto3.client('sns')
 
 def lambda_handler(event, context):
     try:
@@ -19,17 +26,48 @@ def lambda_handler(event, context):
             connect_timeout=5
         )
         with conn.cursor() as cursor:
-            cursor.execute("SELECT t.RecordNumber, t.PalletID, t.SubmittedDate, t.BotProcessedDateTime, t.BotStatus, t.GrowerNumberUK FROM `qmp`.`T_Inspection_UK` t where t.BotStatus = 'Not Processed';")
-            version = cursor.fetchone()
-            print("Database version:", version)
-        conn.close()
-        return {
-            "statusCode": 200,
-            "body": f"Connected to MySQL, version: {version}"
-        }
+            query = """
+                    SELECT t.RecordNumber, t.PalletID, t.SubmittedDate, t.BotProcessedDateTime, t.BotStatus, t.GrowerNumberUK 
+                    FROM `qmp`.`T_Inspection_UK` t where t.BotStatus = 'Not Processed';
+                    """
+            cursor.execute(query)
+            rows = cursor.fetchall()
+            
+        if rows:
+            msg_lines = []
+            for row in rows:
+                line = f"Record: {row[0]}, PalletID: {row[1]}, Submitted: {row[2]}, BotStatus: {row[4]}"
+                msg_lines.append(line)
+
+            message = "\n".join(msg_lines)
+            sns_response = sns_client.publish(
+                TopicArn=sns_topic_arn,
+                Subject="Unprocessed QMP Records Alert",
+                Message=f"Found {len(rows)} unprocessed records:\n\n{message}"
+            )
+
+            conn.close()
+            return {
+                'statusCode': 200,
+                'body': json.dumps({
+                    'status': 'SNS Sent',
+                    'messageId': sns_response.get('MessageId'),
+                    'rowsFound': len(rows)
+                })
+            }
+        else:
+            return {
+                'statusCode': 200,
+                'body': json.dumps('No unprocessed records found.')
+            }
+
+
+        
+
+    
     except Exception as e:
         print("ERROR:", e)
         return {
-            "statusCode": 500,
-            "body": str(e)
+            'statusCode': 500,
+            'body': json.dumps(f'Error: {str(e)}')
         }
