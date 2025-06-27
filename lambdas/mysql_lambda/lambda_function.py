@@ -40,18 +40,19 @@ def lambda_handler(event, context):
                 msg_lines.append(line)
 
             message = "\n".join(msg_lines)
-            sns_response = sns_client.publish(
-                TopicArn=sns_topic_arn,
-                Subject="Unprocessed QMP Records Alert",
-                Message=f"Found {len(rows)} unprocessed records:\n\n{message}"
-            )
+            # sns_response = sns_client.publish(
+            #     TopicArn=sns_topic_arn,
+            #     Subject="Unprocessed QMP Records Alert",
+            #     Message=f"Found {len(rows)} unprocessed records:\n\n{message}"
+            # )
 
-            conn.close()
+            
             return {
                 'statusCode': 200,
                 'body': json.dumps({
                     'status': 'SNS Sent',
-                    'messageId': sns_response.get('MessageId'),
+                    # 'messageId': sns_response.get('MessageId'),
+                    'message': message,
                     'rowsFound': len(rows)
                 })
             }
