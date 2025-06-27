@@ -1,9 +1,10 @@
-name: Deploy SNS Lambda
+name: Deploy Lambdas
 
 on:
   push:
     paths:
       - 'lambdas/sns_lambda/**'
+      - 'lambdas/mysql_lambda/**'
     branches:
       - main
 
@@ -14,18 +15,41 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - name: Install zip tool
-        uses: montudor/action-zip@v1
+      # Required to use pip
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.12'
 
+      # ---------- SNS Lambda ----------
       - name: Zip SNS Lambda
         run: zip -j sns.zip lambdas/sns_lambda/lambda_function.py
 
-      - name: AWS CLI v2
+      - name: Deploy SNS Lambda
         uses: imehedi/actions-awscli-v2@latest
         with:
           args: "lambda update-function-code \
             --function-name arn:aws:lambda:us-east-1:825765396866:function:NK_helloworld_SNS \
             --zip-file fileb://sns.zip"
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: "us-east-1"
+
+      # ---------- MySQL Lambda ----------
+      - name: Install pymysql and prepare zip
+        run: |
+          mkdir -p mysql_package
+          pip install pymysql -t mysql_package/
+          cp lambdas/mysql_lambda/lambda_function.py mysql_package/
+          cd mysql_package && zip -r ../mysql_lambda.zip .
+
+      - name: Deploy MySQL Lambda
+        uses: imehedi/actions-awscli-v2@latest
+        with:
+          args: "lambda update-function-code \
+            --function-name arn:aws:lambda:us-east-1:825765396866:function:nk_mysql_select_tests \
+            --zip-file fileb://mysql_lambda.zip"
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
