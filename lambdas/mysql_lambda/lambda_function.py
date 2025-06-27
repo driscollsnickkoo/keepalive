@@ -19,7 +19,7 @@ def lambda_handler(event, context):
             connect_timeout=5
         )
         with conn.cursor() as cursor:
-            cursor.execute("SELECT VERSION();")
+            cursor.execute("SELECT t.RecordNumber, t.PalletID, t.SubmittedDate, t.BotProcessedDateTime, t.BotStatus, t.GrowerNumberUK FROM `qmp`.`T_Inspection_UK` t where t.BotStatus = 'Not Processed';")
             version = cursor.fetchone()
             print("Database version:", version)
         conn.close()
