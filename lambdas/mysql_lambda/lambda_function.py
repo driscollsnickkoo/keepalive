@@ -45,16 +45,19 @@ def lambda_handler(event, context):
             #     Subject="Unprocessed QMP Records Alert",
             #     Message=f"Found {len(rows)} unprocessed records:\n\n{message}"
             # )
-            print(f"sns_topic_arn : {sns_topic_arn}")
-            print(f"Found {len(rows)} unprocessed records:\n\n{message}")
-            
+
+            sns_response = sns_client.publish(
+                TopicArn='arn:aws:sns:us-east-1:825765396866:QMPTableUpdateAlert',
+                Message=f'Test sns from Lambda Message with key1 : {message}',
+                Subject='Test SNS from Lambda subject'
+            )
 
             
             return {
                 'statusCode': 200,
                 'body': json.dumps({
                     'status': 'SNS Sent',
-                    # 'messageId': sns_response.get('MessageId'),
+                    'messageId': sns_response.get('MessageId'),
                     'message': message,
                     'rowsFound': len(rows)
                 })
