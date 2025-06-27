@@ -56,8 +56,8 @@ def lambda_handler(event, context):
             return {
                 'statusCode': 200,
                 'body': json.dumps({
-                    'status': 'SNS Sent',
-                    'messageId': sns_response.get('MessageId'),
+                    'status': 'just mysql',
+                    # 'messageId': sns_response.get('MessageId'),
                     'message': message,
                     'rowsFound': len(rows)
                 })
