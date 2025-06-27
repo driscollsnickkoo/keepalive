@@ -23,7 +23,7 @@ def lambda_handler(event, context):
             password=DB_PASS,
             database=DB_NAME,
             port=DB_PORT,
-            connect_timeout=5
+            connect_timeout=100
         )
         with conn.cursor() as cursor:
             query = """
