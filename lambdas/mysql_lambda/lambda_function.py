@@ -45,7 +45,7 @@ def lambda_handler(event, context):
             
             sns_response = sns_client.publish(
                 TopicArn=sns_topic_arn,
-                Subject="NK test sns subject",
+                Subject="NK test sns subject new ",
                 Message=f"Found NK {message}"
             )
 
