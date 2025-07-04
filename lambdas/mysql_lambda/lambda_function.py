@@ -1,5 +1,5 @@
 import os
-import pymysql
+# import pymysql
 import boto3
 import json
 
@@ -12,45 +12,43 @@ DB_NAME = os.environ['DB_NAME']
 
 
 # SNS config
-sns_topic_arn = 'arn:aws:sns:us-east-1:825765396866:QMPTableUpdateAlert'
+sns_topic_arn = 'arn:aws:sns:eu-north-1:825765396866:sns_nktest'
+
 sns_client = boto3.client('sns')
 
 def lambda_handler(event, context):
     try:
-        conn = pymysql.connect(
-            host=DB_HOST,
-            user=DB_USER,
-            password=DB_PASS,
-            database=DB_NAME,
-            port=DB_PORT,
-            connect_timeout=100
-        )
-        with conn.cursor() as cursor:
-            query = """
-                    SELECT t.RecordNumber, t.PalletID, t.SubmittedDate, t.BotProcessedDateTime, t.BotStatus, t.GrowerNumberUK 
-                    FROM `qmp`.`T_Inspection_UK` t where t.BotStatus = 'Not Processed';
-                    """
-            cursor.execute(query)
-            rows = cursor.fetchall()
+        # conn = pymysql.connect(
+        #     host=DB_HOST,
+        #     user=DB_USER,
+        #     password=DB_PASS,
+        #     database=DB_NAME,
+        #     port=DB_PORT,
+        #     connect_timeout=100
+        # )
+        # with conn.cursor() as cursor:
+        #     query = """
+        #             SELECT t.RecordNumber, t.PalletID, t.SubmittedDate, t.BotProcessedDateTime, t.BotStatus, t.GrowerNumberUK 
+        #             FROM `qmp`.`T_Inspection_UK` t where t.BotStatus = 'Not Processed';
+        #             """
+        #     cursor.execute(query)
+        #     rows = cursor.fetchall()
             
-        if rows:
-            msg_lines = []
-            for row in rows:
-                line = f"Record: {row[0]}, PalletID: {row[1]}, Submitted: {row[2]}, BotStatus: {row[4]}"
-                msg_lines.append(line)
+        # if rows:
+            # msg_lines = []
+            # for row in rows:
+            #     line = f"Record: {row[0]}, PalletID: {row[1]}, Submitted: {row[2]}, BotStatus: {row[4]}"
+            #     msg_lines.append(line)
 
-            message = "\n".join(msg_lines)
+            # message = "\n".join(msg_lines)
+            message = "NK is testing SNS"
+            
             sns_response = sns_client.publish(
                 TopicArn=sns_topic_arn,
-                Subject="Unprocessed QMP Records Alert",
-                Message=f"Found NK {len(rows)} unprocessed records:\n\n{message}"
+                Subject="NK test sns subject",
+                Message=f"Found NK {message}"
             )
 
-            # sns_response = sns_client.publish(
-            #     TopicArn='arn:aws:sns:us-east-1:825765396866:QMPTableUpdateAlert',
-            #     Message=f'Test sns from Lambda Message with key1 : {message}',
-            #     Subject='Test SNS from Lambda subject'
-            # )
 
             
             return {
@@ -58,15 +56,16 @@ def lambda_handler(event, context):
                 'body': json.dumps({
                     'status': 'just mysql',
                     'messageId': sns_response.get('MessageId'),
-                    'message': message,
-                    'rowsFound': len(rows)
+                    'message': message
+                    # ,
+                    # 'rowsFound': len(rows)
                 })
             }
-        else:
-            return {
-                'statusCode': 200,
-                'body': json.dumps('No unprocessed records found.')
-            }
+        # else:
+        #     return {
+        #         'statusCode': 200,
+        #         'body': json.dumps('No unprocessed records found.')
+        #     }
 
 
         
