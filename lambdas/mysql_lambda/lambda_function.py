@@ -45,7 +45,7 @@ def lambda_handler(event, context):
             
             sns_response = sns_client.publish(
                 TopicArn=sns_topic_arn,
-                Subject="NK test sns subject new ",
+                Subject="NK test sns subject updated with eu-north-1 ",
                 Message=f"Found NK {message}"
             )
 
