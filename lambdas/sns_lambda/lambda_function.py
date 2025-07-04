@@ -8,7 +8,7 @@ def lambda_handler(event, context):
         key1 = event['key1']
 
         response = sns_client.publish(
-            TopicArn='arn:aws:sns:us-east-1:825765396866:QMPTableUpdateAlert',
+            TopicArn='arn:aws:sns:eu-north-1:825765396866:sns_nktest',
             Message=f'Test sns from Lambda Message with key1 : {key1}',
             Subject='Test SNS from Lambda subject'
         )
