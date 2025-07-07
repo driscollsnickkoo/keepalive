@@ -28,8 +28,7 @@ def lambda_handler(event, context):
         )
         with conn.cursor() as cursor:
             query = """
-                    SELECT t.RecordNumber, t.PalletID, t.SubmittedDate, t.BotProcessedDateTime, t.BotStatus, t.GrowerNumberUK 
-                    FROM `qmp`.`T_Inspection_UK` t where t.BotStatus = 'Not Processed';
+                    select * from T_Inspection_UK;
                     """
             cursor.execute(query)
             rows = cursor.fetchall()
