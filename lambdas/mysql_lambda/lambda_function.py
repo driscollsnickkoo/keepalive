@@ -14,7 +14,12 @@ DB_PASS = os.environ['DB_PASS']
 DB_NAME = os.environ['DB_NAME']
 
 # AWS Lambda client
-lambda_client = boto3.client('lambda')
+# lambda_client = boto3.client('lambda')
+
+sqs_client = boto3.client('sqs')
+sqs_url = 'https://sqs.eu-north-1.amazonaws.com/825765396866/nktest_queue'
+# arn:aws:sqs:eu-north-1:825765396866:nktest_queue
+
 
 
 def lambda_handler(event, context):
@@ -47,14 +52,19 @@ def lambda_handler(event, context):
                 'total_rows': len(rows)
             }
 
-            # Invoke nktest_sns Lambda asynchronously
-            response = lambda_client.invoke(
-                FunctionName='nktest_sns',
-                InvocationType='Event',  # Async
-                Payload=json.dumps(sns_message).encode('utf-8')
+            # # Invoke nktest_sns Lambda asynchronously
+            # response = lambda_client.invoke(
+            #     FunctionName='nktest_sns',
+            #     InvocationType='Event',  # Async
+            #     Payload=json.dumps(sns_message).encode('utf-8')
+            # )
+
+            sqs_client.send_message(
+                QueueUrl=sqs_url,
+                MessageBody=json.dumps(sns_message)
             )
 
-            print("Invoked nktest_sns, response:", response)
+            print("SQS message sent")
 
             return {
                 'statusCode': 200,
