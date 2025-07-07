@@ -2,21 +2,16 @@ import os
 import pymysql
 import json
 
-# Read environment variables for mysql
+# Read environment variables for MySQL
 DB_HOST = os.environ['DB_HOST']
 DB_PORT = int(os.environ['DB_PORT'])
 DB_USER = os.environ['DB_USER']
 DB_PASS = os.environ['DB_PASS']
 DB_NAME = os.environ['DB_NAME']
 
-# Uncomment below only if you want to test sns later
-# import boto3
-# sns_topic_arn = 'arn:aws:sns:eu-north-1:825765396866:sns_nktest'
-# sns_client = boto3.client('sns')
-
 def lambda_handler(event, context):
     try:
-        # Attempt to connect to MySQL
+        # Connect to MySQL
         conn = pymysql.connect(
             host=DB_HOST,
             user=DB_USER,
@@ -25,16 +20,36 @@ def lambda_handler(event, context):
             port=DB_PORT,
             connect_timeout=10
         )
-        # Connection successful
+
+        with conn.cursor() as cursor:
+            query = "SELECT * FROM T_Inspection_UK;"
+            cursor.execute(query)
+            rows = cursor.fetchall()
+        
         conn.close()
-        return {
-            'statusCode': 200,
-            'body': json.dumps('MySQL connection successful.')
-        }
+
+        if rows:
+            # Return only first 5 rows to keep message short
+            preview = rows[:5]
+            formatted = [str(row) for row in preview]
+
+            return {
+                'statusCode': 200,
+                'body': json.dumps({
+                    'message': 'MySQL query executed successfully.',
+                    'rows_preview': formatted,
+                    'total_rows': len(rows)
+                })
+            }
+        else:
+            return {
+                'statusCode': 200,
+                'body': json.dumps('Query ran but no rows found.')
+            }
 
     except Exception as e:
         print("ERROR:", e)
         return {
             'statusCode': 500,
-            'body': json.dumps(f'Error connecting to MySQL: {str(e)}')
+            'body': json.dumps(f'Error: {str(e)}')
         }
