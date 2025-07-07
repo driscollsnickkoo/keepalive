@@ -1,7 +1,7 @@
 import os
 import pymysql
 import json
-import boto3
+# import boto3
 
 
 # Read environment variables for MySQL
@@ -12,10 +12,10 @@ DB_PASS = os.environ['DB_PASS']
 DB_NAME = os.environ['DB_NAME']
 
 # SNS config
-sns_topic_arn = 'arn:aws:sns:eu-north-1:825765396866:sns_nktest'
+# sns_topic_arn = 'arn:aws:sns:eu-north-1:825765396866:sns_nktest'
 
 
-sns_client = boto3.client('sns', region_name='eu-north-1')
+# sns_client = boto3.client('sns', region_name='eu-north-1')
 
 
 def lambda_handler(event, context):
