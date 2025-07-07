@@ -3,6 +3,7 @@ import pymysql
 import json
 import boto3
 
+
 # Read environment variables for MySQL
 DB_HOST = os.environ['DB_HOST']
 DB_PORT = int(os.environ['DB_PORT'])
@@ -10,8 +11,11 @@ DB_USER = os.environ['DB_USER']
 DB_PASS = os.environ['DB_PASS']
 DB_NAME = os.environ['DB_NAME']
 
-# AWS Lambda client
-lambda_client = boto3.client('lambda')
+# SNS config
+sns_topic_arn = 'arn:aws:sns:eu-north-1:825765396866:sns_nktest'
+
+
+sns_client = boto3.client('sns', region_name='eu-north-1')
 
 
 def lambda_handler(event, context):
@@ -38,24 +42,13 @@ def lambda_handler(event, context):
             preview = rows[:5]
             formatted = [str(row) for row in preview]
 
-            sns_message = {
-                'message': 'MySQL query executed successfully.',
-                'rows_preview': formatted,
-                'total_rows': len(rows)
-            }
-
-            # Invoke nktest_sns Lambda asynchronously
-            response = lambda_client.invoke(
-                FunctionName='nktest_sns',
-                InvocationType='Event',  # Async
-                Payload=json.dumps(sns_message).encode('utf-8')
-            )
-
-            print("Invoked nktest_sns, response:", response)
-
             return {
                 'statusCode': 200,
-                'body': json.dumps(sns_message)
+                'body': json.dumps({
+                    'message': 'MySQL query executed successfully.',
+                    'rows_preview': formatted,
+                    'total_rows': len(rows)
+                })
             }
         else:
             return {
