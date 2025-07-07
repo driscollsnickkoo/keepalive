@@ -61,6 +61,12 @@ def lambda_handler(event, context):
                 })
             }
         else:
+            
+            sns_response = sns_client.publish(
+                TopicArn=sns_topic_arn,
+                Subject="NK no entry in testqmp 2025-07-07 ",
+                Message="Nothing Found NK"
+            )
             return {
                 'statusCode': 200,
                 'body': json.dumps('No unprocessed records found.')
