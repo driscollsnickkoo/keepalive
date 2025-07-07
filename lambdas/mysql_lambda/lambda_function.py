@@ -1,5 +1,5 @@
 import os
-# import pymysql
+import pymysql
 import boto3
 import json
 
@@ -18,29 +18,29 @@ sns_client = boto3.client('sns')
 
 def lambda_handler(event, context):
     try:
-        # conn = pymysql.connect(
-        #     host=DB_HOST,
-        #     user=DB_USER,
-        #     password=DB_PASS,
-        #     database=DB_NAME,
-        #     port=DB_PORT,
-        #     connect_timeout=100
-        # )
-        # with conn.cursor() as cursor:
-        #     query = """
-        #             SELECT t.RecordNumber, t.PalletID, t.SubmittedDate, t.BotProcessedDateTime, t.BotStatus, t.GrowerNumberUK 
-        #             FROM `qmp`.`T_Inspection_UK` t where t.BotStatus = 'Not Processed';
-        #             """
-        #     cursor.execute(query)
-        #     rows = cursor.fetchall()
+        conn = pymysql.connect(
+            host=DB_HOST,
+            user=DB_USER,
+            password=DB_PASS,
+            database=DB_NAME,
+            port=DB_PORT,
+            connect_timeout=100
+        )
+        with conn.cursor() as cursor:
+            query = """
+                    SELECT t.RecordNumber, t.PalletID, t.SubmittedDate, t.BotProcessedDateTime, t.BotStatus, t.GrowerNumberUK 
+                    FROM `qmp`.`T_Inspection_UK` t where t.BotStatus = 'Not Processed';
+                    """
+            cursor.execute(query)
+            rows = cursor.fetchall()
             
-        # if rows:
-            # msg_lines = []
-            # for row in rows:
-            #     line = f"Record: {row[0]}, PalletID: {row[1]}, Submitted: {row[2]}, BotStatus: {row[4]}"
-            #     msg_lines.append(line)
+        if rows:
+            msg_lines = []
+            for row in rows:
+                line = f"Record: {row[0]}, PalletID: {row[1]}, Submitted: {row[2]}, BotStatus: {row[4]}"
+                msg_lines.append(line)
 
-            # message = "\n".join(msg_lines)
+            message = "\n".join(msg_lines)
             message = "NK is testing SNS"
             
             sns_response = sns_client.publish(
@@ -61,11 +61,11 @@ def lambda_handler(event, context):
                     # 'rowsFound': len(rows)
                 })
             }
-        # else:
-        #     return {
-        #         'statusCode': 200,
-        #         'body': json.dumps('No unprocessed records found.')
-        #     }
+        else:
+            return {
+                'statusCode': 200,
+                'body': json.dumps('No unprocessed records found.')
+            }
 
 
         
